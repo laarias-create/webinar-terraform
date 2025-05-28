@@ -1,7 +1,7 @@
 name: Terraform Destroy
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # Ejecutar manualmente desde la pestaña "Actions"
 
 jobs:
   terraform-destroy:
@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
+    - name: Checkout Code
       uses: actions/checkout@v3
 
     - name: Setup Terraform
@@ -17,17 +17,17 @@ jobs:
       with:
         terraform_version: 1.5.0
 
-    - name: Terraform Init (with reconfigure)
-      run: terraform init -reconfigure
+    - name: Terraform Init
+      run: terraform init -input=false
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-    - name: Terraform Workspace Select (default)
-      run: terraform workspace select default || terraform workspace new default
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    - name: Terraform Format Check
+      run: terraform fmt -check
+
+    - name: Terraform Validate
+      run: terraform validate
 
     - name: Terraform Plan -destroy
       run: terraform plan -destroy -input=false
