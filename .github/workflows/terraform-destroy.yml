@@ -5,10 +5,11 @@ on:
 
 jobs:
   terraform-destroy:
+    name: Validate & Destroy Infrastructure
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
+    - name: Checkout Repository
       uses: actions/checkout@v3
 
     - name: Setup Terraform
@@ -16,8 +17,14 @@ jobs:
       with:
         terraform_version: 1.5.0
 
-    - name: Terraform Init
-      run: terraform init -input=false
+    - name: Terraform Init (with reconfigure)
+      run: terraform init -reconfigure
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    - name: Terraform Workspace Select (default)
+      run: terraform workspace select default || terraform workspace new default
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -31,9 +38,5 @@ jobs:
     - name: Terraform Destroy
       run: terraform destroy -auto-approve -input=false
       env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-    env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
